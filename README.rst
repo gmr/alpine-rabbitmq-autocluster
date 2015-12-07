@@ -23,7 +23,7 @@ Configuration
 -------------
 All configuration of the auto-cluster plugin should be done via environment variables.
 
-See the `configuration settings <https://github.com/aweber/rabbitmq-autocluster#general-settings`_
+See the `configuration settings <https://github.com/aweber/rabbitmq-autocluster#general-settings>`_
 in the the AutoCluster plugin to determine which environment variables to set.
 
 Example Usage

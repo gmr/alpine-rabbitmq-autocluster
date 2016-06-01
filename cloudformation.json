@@ -18,7 +18,7 @@
 		"StartSize": {
 			"Type": "Number",
 			"Default": "2",
-			"Description": "Number of instances to launch in your ECS cluster"
+			"Description": "Number of instances to launch in your RabbitMQ cluster"
 		},
 		"InstanceType": {
 			"Description": "The EC2 instance type",
@@ -37,7 +37,7 @@
 		},
 		"KeyName": {
 			"Type": "AWS::EC2::KeyPair::KeyName",
-			"Description": "Name of an existing EC2 KeyPair to enable SSH access to the ECS instances",
+			"Description": "Name of an existing EC2 KeyPair to enable SSH access to the RabbitMQ instances",
 			"MinLength": 1
 		}
 	},
@@ -107,13 +107,6 @@
 					"CidrIp": "0.0.0.0/0"
 				}, {
 					"IpProtocol": "tcp",
-					"FromPort": "4369",
-					"ToPort": "4369",
-					"SourceSecurityGroupId": {
-						"Ref": "AutoclusterSecurityGroup"
-					}
-				}, {
-					"IpProtocol": "tcp",
 					"FromPort": "5672",
 					"ToPort": "5672",
 					"CidrIp": "0.0.0.0/0"
@@ -122,14 +115,35 @@
 					"FromPort": "15672",
 					"ToPort": "15672",
 					"CidrIp": "0.0.0.0/0"
-				}, {
-					"IpProtocol": "tcp",
-					"FromPort": "25672",
-					"ToPort": "25672",
-					"SourceSecurityGroupId": {
-						"Ref": "AutoclusterSecurityGroup"
-					}
 				}]
+			}
+		},
+		"AutoclusterSGIngress25672": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Properties": {
+				"GroupName": {
+					"Ref": "AutoclusterSecurityGroup"
+				},
+				"IpProtocol": "tcp",
+				"FromPort": "4369",
+				"ToPort": "4369",
+				"SourceSecurityGroupName": {
+					"Ref": "AutoclusterSecurityGroup"
+				}
+			}
+		},
+		"AutoclusterSGIngress25672": {
+			"Type": "AWS::EC2::SecurityGroupIngress",
+			"Properties": {
+				"GroupName": {
+					"Ref": "AutoclusterSecurityGroup"
+				},
+				"IpProtocol": "tcp",
+				"FromPort": "25672",
+				"ToPort": "25672",
+				"SourceSecurityGroupName": {
+					"Ref": "AutoclusterSecurityGroup"
+				}
 			}
 		},
 		"AutoclusterELB": {

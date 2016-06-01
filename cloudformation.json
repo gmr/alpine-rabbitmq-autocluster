@@ -118,7 +118,7 @@
 				}]
 			}
 		},
-		"AutoclusterSGIngress25672": {
+		"AutoclusterSGIngress4369": {
 			"Type": "AWS::EC2::SecurityGroupIngress",
 			"Properties": {
 				"GroupName": {

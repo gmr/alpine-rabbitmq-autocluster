@@ -1,8 +1,11 @@
 alpine-rabbitmq-autocluster
 ===========================
-Minimal RabbitMQ image with the autocluster plugin
+Small RabbitMQ image (~42MB) with the autocluster plugin
 
-|Layers| |Stars| |Pulls|
+RabbitMQ Version: 3.6.2
+Autocluster Version: 0.5.0
+
+|Stars| |Pulls|
 
 Enabled plugins
 ---------------
@@ -101,6 +104,4 @@ in the Launch Configuration:
 
 .. |Pulls| image:: https://img.shields.io/docker/pulls/gavinmroy/alpine-rabbitmq-autocluster.svg?style=flat&1
    :target: https://hub.docker.com/r/gavinmroy/alpine-rabbitmq-autocluster/
-
-.. |Layers| image:: https://img.shields.io/imagelayers/image-size/gavinmroy/alpine-rabbitmq-autocluster/latest.svg?style=flat&1
-    :target: https://hub.docker.com/r/gavinmroy/alpine-rabbitmq-autocluster/
+ (~42MB)

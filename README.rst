@@ -97,7 +97,7 @@ in the Launch Configuration:
       - docker-engine
     runcmd:
       - export AWS_DEFAULT_REGION=`ec2metadata --availability-zone | sed s'/.$//'`
-      - docker run -d --name rabbitmq --net=host -p 4369:4369 -p 5672:5672 -p 15672:15672 -p 25672:25672 -e AUTOCLUSTER_TYPE=aws -e AUTOCLUSTER_CLEANUP=true -e CLEANUP_WARN_ONLY=false -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION gavinmroy/autocluster:latest
+      - docker run -d --name rabbitmq --net=host -p 4369:4369 -p 5672:5672 -p 15672:15672 -p 25672:25672 -e AUTOCLUSTER_TYPE=aws -e AUTOCLUSTER_CLEANUP=true -e CLEANUP_WARN_ONLY=false -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION gavinmroy/alpine-rabbitmq-autocluster:3.6.2-0.5.0
 
 .. |Stars| image:: https://img.shields.io/docker/stars/gavinmroy/alpine-rabbitmq-autocluster.svg?style=flat&1
    :target: https://hub.docker.com/r/gavinmroy/alpine-rabbitmq-autocluster/

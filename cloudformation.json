@@ -1,0 +1,217 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Autoscaling Group Backed RabbitMQ Cluster",
+	"Conditions": {},
+	"Mappings": {
+		"AWSRegionToAMI": {
+			"us-east-1": {
+				"AMI": "ami-fce3c696"
+			}
+		}
+	},
+	"Parameters": {
+		"MaxSize": {
+			"Type": "Number",
+			"Default": "5",
+			"Description": "The maximum size of the Auto Scaling group"
+		},
+		"StartSize": {
+			"Type": "Number",
+			"Default": "2",
+			"Description": "Number of instances to launch in your ECS cluster"
+		},
+		"InstanceType": {
+			"Description": "The EC2 instance type",
+			"Type": "String",
+			"Default": "t2.small",
+			"AllowedValues": [
+				"t2.micro",
+				"t2.small",
+				"t2.medium",
+				"m3.medium",
+				"m3.large",
+				"m3.xlarge",
+				"m3.2xlarge"
+			],
+			"ConstraintDescription": "Must be a valid EC2 instance type."
+		},
+		"KeyName": {
+			"Type": "AWS::EC2::KeyPair::KeyName",
+			"Description": "Name of an existing EC2 KeyPair to enable SSH access to the ECS instances",
+			"MinLength": 1
+		}
+	},
+	"Metadata": {},
+	"Outputs": {},
+	"Resources": {
+		"AutoclusterRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [{
+						"Effect": "Allow",
+						"Principal": {
+							"Service": ["ec2.amazonaws.com"]
+						},
+						"Action": ["sts:AssumeRole"]
+					}]
+				},
+				"Path": "/"
+			}
+		},
+		"AutoclusterPolicy": {
+			"Type": "AWS::IAM::Policy",
+			"Properties": {
+				"PolicyName": "AutoclusterPolicy",
+				"PolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [{
+						"Effect": "Allow",
+						"Action": [
+							"autoscaling:DescribeAutoScalingInstances",
+							"ec2:DescribeInstances"
+						],
+						"Resource": [
+							"*"
+						]
+					}]
+				},
+				"Roles": [{
+					"Ref": "AutoclusterRole"
+				}]
+			}
+		},
+		"AutoclusterInstanceProfile": {
+			"Type": "AWS::IAM::InstanceProfile",
+			"Properties": {
+				"Path": "/",
+				"Roles": [{
+					"Ref": "AutoclusterRole"
+				}]
+			}
+		},
+		"AutoclusterSecurityGroup": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Properties": {
+				"GroupDescription": "Open ports to the RabbitMQ cluster",
+				"SecurityGroupIngress": [{
+					"IpProtocol": "tcp",
+					"FromPort": "22",
+					"ToPort": "22",
+					"CidrIp": "0.0.0.0/0"
+				}, {
+					"IpProtocol": "tcp",
+					"FromPort": "80",
+					"ToPort": "80",
+					"CidrIp": "0.0.0.0/0"
+				}, {
+					"IpProtocol": "tcp",
+					"FromPort": "4369",
+					"ToPort": "4369",
+					"SourceSecurityGroupId": {
+						"Ref": "AutoclusterSecurityGroup"
+					}
+				}, {
+					"IpProtocol": "tcp",
+					"FromPort": "5672",
+					"ToPort": "5672",
+					"CidrIp": "0.0.0.0/0"
+				}, {
+					"IpProtocol": "tcp",
+					"FromPort": "15672",
+					"ToPort": "15672",
+					"CidrIp": "0.0.0.0/0"
+				}, {
+					"IpProtocol": "tcp",
+					"FromPort": "25672",
+					"ToPort": "25672",
+					"SourceSecurityGroupId": {
+						"Ref": "AutoclusterSecurityGroup"
+					}
+				}]
+			}
+		},
+		"AutoclusterELB": {
+			"Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+			"Properties": {
+				"AvailabilityZones": {
+					"Fn::GetAZs": ""
+				},
+				"CrossZone": true,
+				"Listeners": [{
+					"LoadBalancerPort": "5672",
+					"InstancePort": "5672",
+					"Protocol": "TCP"
+				}, {
+					"LoadBalancerPort": "80",
+					"InstancePort": "15672",
+					"Protocol": "HTTP"
+				}, {
+					"LoadBalancerPort": "15672",
+					"InstancePort": "15672",
+					"Protocol": "HTTP"
+				}],
+				"HealthCheck": {
+					"Target": "HTTP:15672/",
+					"HealthyThreshold": "2",
+					"UnhealthyThreshold": "3",
+					"Interval": "30",
+					"Timeout": "5"
+				}
+			}
+		},
+		"AutoclusterLaunchConfig": {
+			"Type": "AWS::AutoScaling::LaunchConfiguration",
+			"Properties": {
+				"ImageId": "ami-fce3c696",
+				"InstanceMonitoring": true,
+				"InstanceType": {
+					"Ref": "InstanceType"
+				},
+				"IamInstanceProfile": {
+					"Ref": "AutoclusterInstanceProfile"
+				},
+				"KeyName": {
+					"Ref": "KeyName"
+				},
+				"SecurityGroups": [{
+					"Ref": "AutoclusterSecurityGroup"
+				}],
+				"UserData": "I2Nsb3VkLWNvbmZpZwphcHRfdXBkYXRlOiB0cnVlCmFwdF91cGdyYWRlOiB0cnVlCmFwdF9zb3VyY2VzOgogLSBzb3VyY2U6IGRlYiBodHRwczovL2FwdC5kb2NrZXJwcm9qZWN0Lm9yZy9yZXBvIHVidW50dS10cnVzdHkgbWFpbgogICBrZXlpZDogNTgxMThFODlGM0E5MTI4OTdDMDcwQURCRjc2MjIxNTcyQzUyNjA5RAogICBmaWxlbmFtZTogZG9ja2VyLmxpc3QKcGFja2FnZXM6CiAtIGRvY2tlci1lbmdpbmUKcnVuY21kOgogLSBleHBvcnQgQVdTX0RFRkFVTFRfUkVHSU9OPWBlYzJtZXRhZGF0YSAtLWF2YWlsYWJpbGl0eS16b25lIHwgc2VkIHMnLy4kLy8nYAogLSBkb2NrZXIgcnVuIC1kIC0tbmFtZSByYWJiaXRtcSAtLW5ldD1ob3N0IC1wIDQzNjk6NDM2OSAtcCA1NjcyOjU2NzIgLXAgMTU2NzI6MTU2NzIgLXAgMjU2NzI6MjU2NzIgLWUgQVVUT0NMVVNURVJfVFlQRT1hd3MgLWUgQVVUT0NMVVNURVJfQ0xFQU5VUD10cnVlIC1lIENMRUFOVVBfV0FSTl9PTkxZPWZhbHNlIC1lIEFXU19ERUZBVUxUX1JFR0lPTj0kQVdTX0RFRkFVTFRfUkVHSU9OIGdhdmlubXJveS9hdXRvY2x1c3RlcjpsYXRlc3QK"
+			}
+		},
+		"AutoclusterAutoScalingGroup": {
+			"Type": "AWS::AutoScaling::AutoScalingGroup",
+			"Properties": {
+				"AvailabilityZones": {
+					"Fn::GetAZs": ""
+				},
+				"DesiredCapacity": {
+					"Ref": "StartSize"
+				},
+				"MinSize": 0,
+				"MaxSize": {
+					"Ref": "MaxSize"
+				},
+				"HealthCheckGracePeriod": 300,
+				"HealthCheckType": "ELB",
+				"LaunchConfigurationName": {
+					"Ref": "AutoclusterLaunchConfig"
+				},
+				"LoadBalancerNames": [{
+					"Ref": "AutoclusterELB"
+				}],
+				"Tags": [{
+					"Key": "Name",
+					"Value": "rabbitmq-autocluster-member",
+					"PropagateAtLaunch": true
+				}, {
+					"Key": "Service",
+					"Value": "RabbitMQ",
+					"PropagateAtLaunch": true
+				}]
+			}
+		}
+	}
+}

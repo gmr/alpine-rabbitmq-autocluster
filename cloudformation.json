@@ -115,6 +115,12 @@
 					"FromPort": "15672",
 					"ToPort": "15672",
 					"CidrIp": "0.0.0.0/0"
+				}],
+				"Tags": [{
+					"Key": "Name",
+					"Value": {
+						"Ref": "AWS::StackName"
+					}
 				}]
 			}
 		},
@@ -172,7 +178,13 @@
 					"UnhealthyThreshold": "3",
 					"Interval": "30",
 					"Timeout": "5"
-				}
+				},
+				"Tags": [{
+					"Key": "Name",
+					"Value": {
+						"Ref": "AWS::StackName"
+					}
+				}]
 			}
 		},
 		"AutoclusterLaunchConfig": {

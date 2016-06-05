@@ -6,7 +6,6 @@ ENV PLUGIN_BASE=v3.6.x
 ENV AUTOCLUSTER_VERSION=0.6.0
 ENV DELAYED_MESSAGE_VERSION=0.0.1
 ENV MESSAGE_TIMESTAMP_VERSION=3.6.x-3195a55a
-ENV NODE_STAMP_VERSION=3.6.x-4d50a957
 ENV TOP_VERSION=3.6.x-2d253d39
 
 RUN \
@@ -20,7 +19,6 @@ RUN \
 RUN \
   curl -sL -o /usr/lib/rabbitmq/plugins/rabbitmq_delayed_message_exchange-${DELAYED_MESSAGE_VERSION}.ez  http://www.rabbitmq.com/community-plugins/${PLUGIN_BASE}/rabbitmq_delayed_message_exchange-${DELAYED_MESSAGE_VERSION}.ez && \
   curl -sL -o /usr/lib/rabbitmq/plugins/rabbitmq_message_timestamp-${MESSAGE_TIMESTAMP_VERSION}.ez https://www.rabbitmq.com/community-plugins/${PLUGIN_BASE}/rabbitmq_message_timestamp-${MESSAGE_TIMESTAMP_VERSION}.ez && \
-  curl -sL -o /usr/lib/rabbitmq/plugins/rabbitmq_routing_node_stamp-${NODE_STAMP_VERSION}.ez https://www.rabbitmq.com/community-plugins/${PLUGIN_BASE}/rabbitmq_routing_node_stamp-${NODE_STAMP_VERSION}.ez && \
   curl -sL -o /usr/lib/rabbitmq/plugins/rabbitmq_top-${TOP_VERSION}.ez http://www.rabbitmq.com/community-plugins/${PLUGIN_BASE}/rabbitmq_top-${TOP_VERSION}.ez && \
   curl -sL -o /tmp/autocluster-${AUTOCLUSTER_VERSION}.tgz https://github.com/aweber/rabbitmq-autocluster/releases/download/${AUTOCLUSTER_VERSION}/autocluster-${AUTOCLUSTER_VERSION}.tgz && \
   tar -xvz -C /usr/lib/rabbitmq -f /tmp/autocluster-${AUTOCLUSTER_VERSION}.tgz && \
@@ -62,7 +60,6 @@ RUN \
         rabbitmq_message_timestamp \
         rabbitmq_mqtt \
         rabbitmq_recent_history_exchange \
-        rabbitmq_routing_node_stamp \
         rabbitmq_sharding \
         rabbitmq_shovel \
         rabbitmq_shovel_management \

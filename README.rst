@@ -3,7 +3,7 @@ alpine-rabbitmq-autocluster
 Small RabbitMQ image (~42MB) with the autocluster plugin
 
 RabbitMQ Version: 3.6.2
-Autocluster Version: 0.6.0
+Autocluster Version: 0.6.1
 
 |Stars| |Pulls|
 
